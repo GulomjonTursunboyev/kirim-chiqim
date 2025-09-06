@@ -2,189 +2,181 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <title>Kirim/Chiqim kiritish</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kirim/Chiqim Hisoboti</title>
   <style>
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      padding: 40px;
     }
     .container {
-      background: white;
-      padding: 30px 40px;
+      background: #fff;
+      padding: 25px;
       border-radius: 15px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 100%;
+      max-width: 400px;
     }
     h2 {
       text-align: center;
-      margin-bottom: 25px;
       color: #333;
+      margin-bottom: 20px;
     }
     label {
-      font-weight: 600;
-      margin-top: 12px;
+      font-weight: bold;
       display: block;
+      margin-top: 10px;
       color: #444;
     }
-    input, select, button {
+    input, select, textarea, button {
       width: 100%;
-      padding: 10px 12px;
+      padding: 10px;
       margin-top: 5px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
-    input:focus, select:focus {
-      border-color: #4a90e2;
-      outline: none;
-      box-shadow: 0 0 6px rgba(74,144,226,0.3);
+      font-size: 14px;
     }
     button {
-      margin-top: 20px;
-      background: #4a90e2;
+      background: #4f46e5;
       color: white;
-      border: none;
-      cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s ease;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
     }
-    button:hover { background: #357ab8; }
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      min-width: 200px;
-      max-width: 300px;
-      padding: 15px 20px;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      z-index: 9999;
+    button:hover {
+      background: #4338ca;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.success { background: #2ecc71; }
-    .toast.error { background: #e74c3c; }
+    .notification {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #22c55e;
+    }
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Kirim/Chiqim kiritish</h2>
+    <h2>Kirim / Chiqim Formasi</h2>
     <form id="dataForm">
-      <label>Sana:</label>
+      <label for="sana">Sana:</label>
       <input type="date" id="sana" name="sana" required>
 
-      <label>Tur:</label>
-      <select id="tur" name="tur" required onchange="updateKategoriya()">
+      <label for="tur">Tur:</label>
+      <select id="tur" name="tur" required>
         <option value="">Tanlang</option>
         <option value="Kirim">Kirim</option>
         <option value="Chiqim">Chiqim</option>
       </select>
 
-      <label>Kategoriya:</label>
+      <label for="kategoriya">Kategoriya:</label>
       <select id="kategoriya" name="kategoriya" required>
-        <option value="">Avval turini tanlang</option>
+        <option value="">Avval tur tanlang</option>
       </select>
 
-      <label>Summasi:</label>
-      <input type="number" name="summa" required>
+      <label for="summa">Summa:</label>
+      <input type="number" id="summa" name="summa" required>
 
-      <label>To‘lov turi:</label>
-      <select name="tolov" required>
-        <option value="naqd">Naqd</option>
-        <option value="plastik">Plastik</option>
+      <label for="tolov">To'lov usuli:</label>
+      <select id="tolov" name="tolov" required>
+        <option value="Naqd">Naqd</option>
+        <option value="Plastik">Plastik</option>
+        <option value="Bank">Bank</option>
       </select>
 
-      <label>Qo‘shimcha:</label>
-      <input type="text" name="qoshimcha">
+      <label for="qoshimcha">Qo'shimcha:</label>
+      <textarea id="qoshimcha" name="qoshimcha" rows="2"></textarea>
 
-      <button type="submit">Yuborish</button>
+      <button type="submit">Saqlash</button>
     </form>
+    <div id="notification" class="notification"></div>
   </div>
 
-  <div id="toast" class="toast"></div>
-
   <script>
-    let kategoriyalar = {};
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec";
 
+    let kategoriyalar = { Kirim: [], Chiqim: [] };
+
+    // Kategoriyalarni yuklash
     async function loadKategoriyalar() {
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec"); // 👈 bu yerga Apps Script Web App URL yozing
-      kategoriyalar = await res.json();
-    }
-
-    function updateKategoriya() {
-      const tur = document.getElementById("tur").value;
-      const kategoriyaSelect = document.getElementById("kategoriya");
-      kategoriyaSelect.innerHTML = "";
-
-      if (tur && kategoriyalar[tur]) {
-        kategoriyalar[tur].forEach(kat => {
-          const opt = document.createElement("option");
-          opt.value = kat;
-          opt.textContent = kat;
-          kategoriyaSelect.appendChild(opt);
-        });
-      } else {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Avval turini tanlang";
-        kategoriyaSelect.appendChild(opt);
+      try {
+        const res = await fetch(SCRIPT_URL);
+        kategoriyalar = await res.json();
+      } catch (err) {
+        console.error("Kategoriya yuklashda xato:", err);
       }
     }
 
-    function setToday() {
-      const today = new Date().toISOString().split("T")[0];
-      document.getElementById("sana").value = today;
-    }
+    // Tur o'zgarganda kategoriyalarni ko'rsatish
+    document.getElementById("tur").addEventListener("change", function() {
+      const tur = this.value;
+      const kategoriyaSelect = document.getElementById("kategoriya");
+      kategoriyaSelect.innerHTML = "<option value=''>Tanlang</option>";
 
-    function showToast(message, type = "success") {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.className = "toast " + type + " show";
-      setTimeout(() => { toast.className = "toast " + type; }, 3000);
-    }
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      setToday();
-      await loadKategoriyalar();
+      if (tur && kategoriyalar[tur]) {
+        kategoriyalar[tur].forEach(k => {
+          const opt = document.createElement("option");
+          opt.value = k;
+          opt.textContent = k;
+          kategoriyaSelect.appendChild(opt);
+        });
+      }
     });
 
+    // Forma yuborish
     document.getElementById("dataForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData.entries());
+      const formData = {
+        sana: document.getElementById("sana").value,
+        tur: document.getElementById("tur").value,
+        kategoriya: document.getElementById("kategoriya").value,
+        summa: document.getElementById("summa").value,
+        tolov: document.getElementById("tolov").value,
+        qoshimcha: document.getElementById("qoshimcha").value,
+      };
 
       try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec", {
+        const res = await fetch(SCRIPT_URL, {
           method: "POST",
-          body: JSON.stringify(data)
+          body: JSON.stringify(formData),
         });
 
         const result = await res.json();
-        if (result.result === "success") {
-          showToast("✅ Ma’lumot saqlandi!", "success");
-        } else {
-          showToast("❌ Xatolik yuz berdi!", "error");
-        }
-
-        this.reset();
-        setToday();
-        updateKategoriya();
+        showNotification("Ma'lumot muvaffaqiyatli saqlandi!", "success");
+        document.getElementById("dataForm").reset();
       } catch (err) {
-        showToast("⚠️ Internetda muammo bor!", "error");
+        showNotification("Xatolik yuz berdi, qayta urinib ko'ring.", "error");
       }
     });
+
+    // Bildirishnoma
+    function showNotification(message, type) {
+      const note = document.getElementById("notification");
+      note.textContent = message;
+      note.className = `notification ${type}`;
+      note.style.display = "block";
+      setTimeout(() => { note.style.display = "none"; }, 3000);
+    }
+
+    // Sahifa yuklanganda kategoriyalarni olish
+    loadKategoriyalar();
   </script>
 </body>
 </html>
