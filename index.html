@@ -1,49 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
+  <meta charset="UTF-8">
   <title>Kirim/Chiqim kiritish</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 12px;
+      display: block;
+      color: #444;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      border-color: #4a90e2;
+      outline: none;
+      box-shadow: 0 0 6px rgba(74,144,226,0.3);
+    }
+    button {
+      margin-top: 20px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover { background: #357ab8; }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 200px;
+      max-width: 300px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 9999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: #2ecc71; }
+    .toast.error { background: #e74c3c; }
+  </style>
 </head>
-<body style="font-family: Arial; margin:30px;">
-  <h2>Kirim/Chiqim kiritish</h2>
-  <form id="dataForm">
-    <label>Sana:</label><br>
-    <input type="date" id="sana" name="sana" required><br><br>
+<body>
+  <div class="container">
+    <h2>Kirim/Chiqim kiritish</h2>
+    <form id="dataForm">
+      <label>Sana:</label>
+      <input type="date" id="sana" name="sana" required>
 
-    <label>Tur:</label><br>
-    <select id="tur" name="tur" required onchange="updateKategoriya()">
-      <option value="">Tanlang</option>
-      <option value="Kirim">Kirim</option>
-      <option value="Chiqim">Chiqim</option>
-    </select><br><br>
+      <label>Tur:</label>
+      <select id="tur" name="tur" required onchange="updateKategoriya()">
+        <option value="">Tanlang</option>
+        <option value="Kirim">Kirim</option>
+        <option value="Chiqim">Chiqim</option>
+      </select>
 
-    <label>Kategoriya:</label><br>
-    <select id="kategoriya" name="kategoriya" required>
-      <option value="">Avval turini tanlang</option>
-    </select><br><br>
+      <label>Kategoriya:</label>
+      <select id="kategoriya" name="kategoriya" required>
+        <option value="">Avval turini tanlang</option>
+      </select>
 
-    <label>Summasi:</label><br>
-    <input type="number" name="summa" required><br><br>
+      <label>Summasi:</label>
+      <input type="number" name="summa" required>
 
-    <label>To‘lov turi:</label><br>
-    <select name="tolov" required>
-      <option value="naqd">Naqd</option>
-      <option value="plastik">Plastik</option>
-    </select><br><br>
+      <label>To‘lov turi:</label>
+      <select name="tolov" required>
+        <option value="naqd">Naqd</option>
+        <option value="plastik">Plastik</option>
+      </select>
 
-    <label>Qo‘shimcha:</label><br>
-    <input type="text" name="qoshimcha"><br><br>
+      <label>Qo‘shimcha:</label>
+      <input type="text" name="qoshimcha">
 
-    <button type="submit">Yuborish</button>
-  </form>
+      <button type="submit">Yuborish</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
 
   <script>
-    // Kategoriyalar
-    const kategoriyalar = {
-      "Kirim": ["Offline dars", "Online kurs", "Loyiha", "Boshqa"],
-      "Chiqim": ["Ovqat", "Yo‘l", "Kvartira", "Kiyim", "Uy", "Uy qo‘shimcha", "Shaxsiy qo‘shimcha"]
-    };
+    let kategoriyalar = {};
 
-    // Kategoriya selectni turga qarab yangilash
+    async function loadKategoriyalar() {
+      const res = await fetch("YOUR_SCRIPT_URL"); // 👈 bu yerga Apps Script Web App URL yozing
+      kategoriyalar = await res.json();
+    }
+
     function updateKategoriya() {
       const tur = document.getElementById("tur").value;
       const kategoriyaSelect = document.getElementById("kategoriya");
@@ -64,31 +143,47 @@
       }
     }
 
-    // Sana inputga bugungi sanani qo‘yish
     function setToday() {
       const today = new Date().toISOString().split("T")[0];
       document.getElementById("sana").value = today;
     }
 
-    document.addEventListener("DOMContentLoaded", setToday);
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "toast " + type + " show";
+      setTimeout(() => { toast.className = "toast " + type; }, 3000);
+    }
 
-    // Formani yuborish
+    document.addEventListener("DOMContentLoaded", async () => {
+      setToday();
+      await loadKategoriyalar();
+    });
+
     document.getElementById("dataForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const formData = new FormData(this);
       const data = Object.fromEntries(formData.entries());
 
-      // 🔗 Sizning Google Apps Script API URL'ingiz
-      const res = await fetch("https://script.google.com/macros/s/AKfycby5pY4I2L5RUgXbQnhcbVdZ1feUHo2S8CC5m0f1wnnKFHLTA4R5wlRznF65Ir54AbG3YQ/exec", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      try {
+        const res = await fetch("YOUR_SCRIPT_URL", {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
 
-      const result = await res.json();
-      alert(result.result === "success" ? "✅ Ma’lumot saqlandi!" : "❌ Xatolik!");
-      this.reset();
-      setToday(); // resetdan keyin sanani bugungi kunga qaytaramiz
-      updateKategoriya();
+        const result = await res.json();
+        if (result.result === "success") {
+          showToast("✅ Ma’lumot saqlandi!", "success");
+        } else {
+          showToast("❌ Xatolik yuz berdi!", "error");
+        }
+
+        this.reset();
+        setToday();
+        updateKategoriya();
+      } catch (err) {
+        showToast("⚠️ Internetda muammo bor!", "error");
+      }
     });
   </script>
 </body>
