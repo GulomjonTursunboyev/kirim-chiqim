@@ -166,7 +166,7 @@
       const data = Object.fromEntries(formData.entries());
 
       try {
-        const res = await fetch("YOUR_SCRIPT_URL", {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbw5qJyUj9bloWz30XWgsEJjuCpOIvE4Zcu1JuHRxB1kmb9TcmQUu7fzcraDdC0mUN51QA/exec", {
           method: "POST",
           body: JSON.stringify(data)
         });
