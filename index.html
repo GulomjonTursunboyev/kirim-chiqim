@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kirim/Chiqim kiritish</title>
+</head>
+<body style="font-family: Arial; margin:30px;">
+  <h2>Kirim/Chiqim kiritish</h2>
+  <form id="dataForm">
+    <label>Sana:</label><br>
+    <input type="date" id="sana" name="sana" required><br><br>
+
+    <label>Tur:</label><br>
+    <select id="tur" name="tur" required onchange="updateKategoriya()">
+      <option value="">Tanlang</option>
+      <option value="Kirim">Kirim</option>
+      <option value="Chiqim">Chiqim</option>
+    </select><br><br>
+
+    <label>Kategoriya:</label><br>
+    <select id="kategoriya" name="kategoriya" required>
+      <option value="">Avval turini tanlang</option>
+    </select><br><br>
+
+    <label>Summasi:</label><br>
+    <input type="number" name="summa" required><br><br>
+
+    <label>To‘lov turi:</label><br>
+    <select name="tolov" required>
+      <option value="naqd">Naqd</option>
+      <option value="plastik">Plastik</option>
+    </select><br><br>
+
+    <label>Qo‘shimcha:</label><br>
+    <input type="text" name="qoshimcha"><br><br>
+
+    <button type="submit">Yuborish</button>
+  </form>
+
+  <script>
+    // Kategoriyalar
+    const kategoriyalar = {
+      "Kirim": ["Offline dars", "Online kurs", "Loyiha", "Boshqa"],
+      "Chiqim": ["Ovqat", "Yo‘l", "Kvartira", "Kiyim", "Uy", "Uy qo‘shimcha", "Shaxsiy qo‘shimcha"]
+    };
+
+    // Kategoriya selectni turga qarab yangilash
+    function updateKategoriya() {
+      const tur = document.getElementById("tur").value;
+      const kategoriyaSelect = document.getElementById("kategoriya");
+      kategoriyaSelect.innerHTML = "";
+
+      if (tur && kategoriyalar[tur]) {
+        kategoriyalar[tur].forEach(kat => {
+          const opt = document.createElement("option");
+          opt.value = kat;
+          opt.textContent = kat;
+          kategoriyaSelect.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Avval turini tanlang";
+        kategoriyaSelect.appendChild(opt);
+      }
+    }
+
+    // Sana inputga bugungi sanani qo‘yish
+    function setToday() {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("sana").value = today;
+    }
+
+    document.addEventListener("DOMContentLoaded", setToday);
+
+    // Formani yuborish
+    document.getElementById("dataForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      // 🔗 Sizning Google Apps Script API URL'ingiz
+      const res = await fetch("https://script.google.com/macros/s/AKfycby5pY4I2L5RUgXbQnhcbVdZ1feUHo2S8CC5m0f1wnnKFHLTA4R5wlRznF65Ir54AbG3YQ/exec", {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      alert(result.result === "success" ? "✅ Ma’lumot saqlandi!" : "❌ Xatolik!");
+      this.reset();
+      setToday(); // resetdan keyin sanani bugungi kunga qaytaramiz
+      updateKategoriya();
+    });
+  </script>
+</body>
+</html>
