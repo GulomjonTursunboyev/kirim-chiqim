@@ -119,7 +119,7 @@
     let kategoriyalar = {};
 
     async function loadKategoriyalar() {
-      const res = await fetch("YOUR_SCRIPT_URL"); // 👈 bu yerga Apps Script Web App URL yozing
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec"); // 👈 bu yerga Apps Script Web App URL yozing
       kategoriyalar = await res.json();
     }
 
@@ -166,7 +166,7 @@
       const data = Object.fromEntries(formData.entries());
 
       try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbz6CYusM8f5MXsfsY0m4VEjt8X1ggT_RtMaBucwzggC2ekm_YC-CZjjrpkqzePl-Q-w0A/exec", {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec", {
           method: "POST",
           body: JSON.stringify(data)
         });
