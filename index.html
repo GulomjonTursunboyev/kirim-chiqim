@@ -110,9 +110,17 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwBVDrbGLAtblvmEW0_n-ohjUyxdJp8vR3IFwh-lxVXcnq1vyOggHBXT7DGLdwlRzPf/exec";
-
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3ymKU0ee1dE3NWT5v8UrCJddfewnsNT5f-4KaiQR6CvxLQiPDua9KZDfEMmWSUbbe5g/exec";
     let kategoriyalar = { Kirim: [], Chiqim: [] };
+
+    // Bugungi sanani qo‘yish (o‘zgartirish mumkin)
+    function setTodayDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById("sana").value = `${yyyy}-${mm}-${dd}`;
+    }
 
     // Kategoriyalarni yuklash
     async function loadKategoriyalar() {
@@ -161,6 +169,7 @@
         const result = await res.json();
         showNotification("Ma'lumot muvaffaqiyatli saqlandi!", "success");
         document.getElementById("dataForm").reset();
+        setTodayDate(); // resetdan keyin bugungi sana qaytadan qo‘yiladi
       } catch (err) {
         showNotification("Xatolik yuz berdi, qayta urinib ko'ring.", "error");
       }
@@ -175,8 +184,11 @@
       setTimeout(() => { note.style.display = "none"; }, 3000);
     }
 
-    // Sahifa yuklanganda kategoriyalarni olish
-    loadKategoriyalar();
+    // Sahifa yuklanganda
+    window.onload = () => {
+      setTodayDate();   // Sana = bugungi sana
+      loadKategoriyalar(); // Kategoriyalarni yuklash
+    }
   </script>
 </body>
 </html>
